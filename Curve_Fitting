@@ -1,0 +1,50 @@
+y = [8256 10055 12270 13120 13751 13232 13634 15973 18746 24728 27967 28012 29644 32350 35086 39933 47275 49049 49005 48236 51271 57053 65483 74965 80908 80368 77193 80673 86885 91319 95547 93765 79054 60319 55935 50148 47062 46849 48284 35005 28170 27383 26261 24259 28134 28500 22516 20248 20757 18966 17723 19024 18165 14106 11530 11278 10619 12041 14537 14787 12369 11671 11414 10400 10831 12588 12535 10354 9706 10195 10446 8632 10542 13563 14330 13787 17423 17800 15657 17304 17263 14608 13660 14037 13899 14071 13874 12523 10168 9262 9751 11221];
+x = 1:92;
+Population = 11589623;
+optimal_beta = 0;
+optimal_gamma = 0;
+final_error = Inf;
+
+for beta = 0:0.0001:1.5
+    for gamma = 0:0.0001:1.5
+        error = LSE(beta,gamma);
+        if (error < final_error)
+            final_error = error;
+            optimal_beta = beta;
+            optimal_gamma = gamma;
+        end
+    end
+end
+
+I = sir_model(optimal_beta,optimal_gamma);
+
+figure
+plot(x,y,x,I)
+title(['Curve Fitting with optimal parameters gamma = ' num2str(optimal_gamma) ' and beta = ' num2str(optimal_beta)])
+xlabel('Time')
+ylabel('Infected population')
+legend({'Data','Fitted curve'},'Location','northeast')
+xlim([0 93])
+ylim([0 100000])
+
+%Aiding function for calculating the MSE Given beta and gamma
+function error = LSE(beta, gamma)
+    y = [8256 10055 12270 13120 13751 13232 13634 15973 18746 24728 27967 28012 29644 32350 35086 39933 47275 49049 49005 48236 51271 57053 65483 74965 80908 80368 77193 80673 86885 91319 95547 93765 79054 60319 55935 50148 47062 46849 48284 35005 28170 27383 26261 24259 28134 28500 22516 20248 20757 18966 17723 19024 18165 14106 11530 11278 10619 12041 14537 14787 12369 11671 11414 10400 10831 12588 12535 10354 9706 10195 10446 8632 10542 13563 14330 13787 17423 17800 15657 17304 17263 14608 13660 14037 13899 14071 13874 12523 10168 9262 9751 11221];
+    I = sir_model(beta,gamma);
+    error = 0;
+    for i = 1:92        
+        error = error + (I(i) - y(i))^2;
+    end
+end
+%Aiding function that returns an array of the infected population
+function I = sir_model(Beta,Gamma)
+    Population = 11589623;
+    S = 1:92;
+    I = 1:92;
+    S(1) = 11581367;
+    I(1) = 8256;
+    for u = 2:92
+        S(u) = S(u-1) - Beta*S(u-1)*I(u-1)/Population;
+        I(u) = I(u-1) + Beta*S(u-1)*I(u-1)/Population - Gamma*I(u-1);
+    end
+end
