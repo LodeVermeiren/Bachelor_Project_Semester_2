@@ -1,0 +1,48 @@
+beta=0.02;  
+gamma=0.01;
+delta=0.2;
+%N=1
+
+a=0;
+c=10000;
+j=0;
+maxnu=0;
+maxvorige=1;
+h=10; %stapgrootte
+
+while(abs(maxnu-maxvorige)>=0.0005)
+
+h=h/2;
+n=round((c-a)/h);
+
+s=zeros(1,n);
+i=zeros(1,n);
+r=zeros(1,n);
+
+s(1)=999/1000;
+i(1)=1/1000;
+r(1)=0;
+
+t=0:h:c;
+
+for j= 1:n
+		 [ds,di,dr] = d(s(j),i(j),r(j),beta,gamma,delta);
+		 s(j+1) = s(j) + h*ds;
+		 i(j+1) = i(j) + h*di;
+		 r(j+1) = r(j) + h*dr;
+
+maxvorige=maxnu;
+maxnu=max(i);
+
+end
+
+plot(t,s,'r',t,i,'b',t,r,'g')
+display(h)
+
+end
+
+function [ds,di,dr] = d(s,i,r,beta,gamma,delta)
+ds = -beta*s*i +delta*r;
+di = beta*s*i - gamma*i;
+dr = gamma*i-delta*r;
+end
